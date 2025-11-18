@@ -109,7 +109,7 @@ export class TelegramBot {
 
       try {
         const response = await this.knowledgeBase.answerQuery(userMessage);
-        await ctx.reply(response, { parse_mode: 'Markdown' });
+        await ctx.reply(response);
       } catch (error: any) {
         console.error('Error handling message:', error);
         await ctx.reply(

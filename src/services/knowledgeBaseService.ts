@@ -126,7 +126,7 @@ export class KnowledgeBaseService {
     let formatted = response;
 
     if (tokensUsed) {
-      formatted += `\n\n💭 _Использовано токенов: ${tokensUsed}_`;
+      formatted += `\n\n💭 Использовано токенов: ${tokensUsed}`;
     }
 
     return formatted;
