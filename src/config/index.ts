@@ -40,7 +40,7 @@ export const config: Config = {
     baseUrl: 'https://openrouter.ai/api/v1',
   },
   googleDocs: {
-    documentIds: getEnvVar('GOOGLE_DOC_IDS', getEnvVar('GOOGLE_DOC_ID', ''))
+    documentIds: (process.env.GOOGLE_DOC_IDS || process.env.GOOGLE_DOC_ID || '')
       .split(',')
       .map(id => id.trim())
       .filter(id => id.length > 0),
