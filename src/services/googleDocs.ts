@@ -33,7 +33,7 @@ export class GoogleDocsService {
   }
 
   /**
-   * Fetches the content from Google Docs document
+   * Fetches the content from all Google Docs documents
    * Uses caching to avoid excessive API calls
    */
   async fetchDocumentContent(forceRefresh: boolean = false): Promise<string> {
@@ -50,17 +50,41 @@ export class GoogleDocsService {
     }
 
     try {
-      console.log('🔄 Fetching fresh content from Google Docs...');
-      const response = await this.docs.documents.get({
-        documentId: config.googleDocs.documentId,
-      });
+      const documentIds = config.googleDocs.documentIds;
+      console.log(`🔄 Fetching fresh content from ${documentIds.length} Google Doc(s)...`);
 
-      const content = this.extractTextFromDocument(response.data);
-      this.lastFetchedContent = content;
+      const allContents: string[] = [];
+
+      // Fetch each document
+      for (let i = 0; i < documentIds.length; i++) {
+        const docId = documentIds[i];
+        try {
+          console.log(`  📄 Fetching document ${i + 1}/${documentIds.length}: ${docId.substring(0, 20)}...`);
+
+          const response = await this.docs.documents.get({
+            documentId: docId,
+          });
+
+          const docTitle = response.data.title || `Документ ${i + 1}`;
+          const content = this.extractTextFromDocument(response.data);
+
+          // Add document separator with title
+          allContents.push(`=== ${docTitle} ===\n\n${content}`);
+
+          console.log(`  ✅ Fetched "${docTitle}": ${content.length} characters`);
+        } catch (error: any) {
+          console.error(`  ❌ Error fetching document ${docId}: ${error.message}`);
+          // Continue with other documents even if one fails
+          allContents.push(`=== Документ ${i + 1} (ошибка загрузки) ===\n\nНе удалось загрузить этот документ: ${error.message}`);
+        }
+      }
+
+      const combinedContent = allContents.join('\n\n---\n\n');
+      this.lastFetchedContent = combinedContent;
       this.lastFetchedTime = now;
 
-      console.log(`✅ Fetched ${content.length} characters from Google Docs`);
-      return content;
+      console.log(`✅ Total fetched: ${combinedContent.length} characters from ${documentIds.length} document(s)`);
+      return combinedContent;
     } catch (error: any) {
       console.error('❌ Error fetching Google Docs content:', error.message);
       throw new Error(`Failed to fetch Google Docs: ${error.message}`);

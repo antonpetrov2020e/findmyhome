@@ -12,7 +12,7 @@ interface Config {
     baseUrl: string;
   };
   googleDocs: {
-    documentId: string;
+    documentIds: string[];
     serviceAccountPath: string;
   };
   textProcessing: {
@@ -40,7 +40,10 @@ export const config: Config = {
     baseUrl: 'https://openrouter.ai/api/v1',
   },
   googleDocs: {
-    documentId: getEnvVar('GOOGLE_DOC_ID'),
+    documentIds: getEnvVar('GOOGLE_DOC_IDS', getEnvVar('GOOGLE_DOC_ID', ''))
+      .split(',')
+      .map(id => id.trim())
+      .filter(id => id.length > 0),
     serviceAccountPath: getEnvVar('GOOGLE_SERVICE_ACCOUNT_PATH', './google-credentials.json'),
   },
   textProcessing: {

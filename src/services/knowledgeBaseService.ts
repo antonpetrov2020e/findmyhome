@@ -97,14 +97,26 @@ export class KnowledgeBaseService {
     const estimatedTokens = this.textProcessor.estimateTokens(
       this.lastDocumentContent
     );
+    const documentIds = config.googleDocs.documentIds;
 
-    return `📊 Статистика базы знаний:\n\n` +
-      `📄 Документ ID: ${config.googleDocs.documentId.substring(0, 20)}...\n` +
-      `📝 Символов: ${charCount.toLocaleString()}\n` +
+    let stats = `📊 Статистика базы знаний:\n\n`;
+
+    if (documentIds.length === 1) {
+      stats += `📄 Документ ID: ${documentIds[0].substring(0, 20)}...\n`;
+    } else {
+      stats += `📚 Количество документов: ${documentIds.length}\n`;
+      documentIds.forEach((id, index) => {
+        stats += `  ${index + 1}. ${id.substring(0, 15)}...\n`;
+      });
+    }
+
+    stats += `📝 Символов: ${charCount.toLocaleString()}\n` +
       `📑 Фрагментов: ${chunkCount}\n` +
       `🎯 Примерно токенов: ${estimatedTokens.toLocaleString()}\n` +
       `🤖 Модель: ${config.openrouter.model}\n` +
       `⚙️ Макс. токенов контекста: ${config.textProcessing.maxContextTokens}`;
+
+    return stats;
   }
 
   /**
