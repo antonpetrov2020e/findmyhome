@@ -74,7 +74,7 @@ export class TextProcessor {
   }
 
   /**
-   * Finds most relevant chunks using TF-IDF similarity
+   * Finds most relevant chunks using hybrid TF-IDF + keyword matching
    */
   findRelevantChunks(
     query: string,
@@ -89,6 +89,13 @@ export class TextProcessor {
       return chunks;
     }
 
+    // Extract keywords from query (remove stop words and short words)
+    const stopWords = ['где', 'для', 'всякие', 'штуки', 'есть', 'лежит', 'находится', 'что', 'как', 'это'];
+    const queryWords = query
+      .toLowerCase()
+      .split(/\s+/)
+      .filter(word => word.length > 2 && !stopWords.includes(word));
+
     const tfidf = new TfIdf();
 
     // Add all chunks to TF-IDF
@@ -96,16 +103,34 @@ export class TextProcessor {
       tfidf.addDocument(chunk.text);
     });
 
-    // Calculate relevance scores
+    // Calculate relevance scores with hybrid approach
     const scoredChunks: TextChunk[] = chunks.map((chunk, index) => {
-      let score = 0;
+      // TF-IDF score
+      let tfidfScore = 0;
       tfidf.tfidfs(query, (i, measure) => {
         if (i === index) {
-          score = measure;
+          tfidfScore = measure;
         }
       });
 
-      return { ...chunk, score };
+      // Keyword matching bonus
+      const lowerText = chunk.text.toLowerCase();
+      let keywordBonus = 0;
+
+      queryWords.forEach(word => {
+        // Count occurrences of each keyword
+        const regex = new RegExp(word, 'gi');
+        const matches = lowerText.match(regex);
+        if (matches) {
+          // Add bonus based on number of matches
+          keywordBonus += matches.length * 10;
+        }
+      });
+
+      // Combined score: TF-IDF + keyword bonus
+      const combinedScore = tfidfScore + keywordBonus;
+
+      return { ...chunk, score: combinedScore };
     });
 
     // Sort by score and return top K

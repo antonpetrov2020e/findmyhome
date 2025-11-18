@@ -49,7 +49,7 @@ export class KnowledgeBaseService {
       const relevantChunks = this.textProcessor.findRelevantChunks(
         userQuery,
         this.cachedChunks,
-        10 // top 10 chunks for better coverage
+        15 // top 15 chunks for better coverage
       );
 
       // Build context from relevant chunks within token limit
