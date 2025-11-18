@@ -47,8 +47,8 @@ export const config: Config = {
     serviceAccountPath: getEnvVar('GOOGLE_SERVICE_ACCOUNT_PATH', './google-credentials.json'),
   },
   textProcessing: {
-    maxContextTokens: parseInt(getEnvVar('MAX_CONTEXT_TOKENS', '8000')),
-    chunkSize: parseInt(getEnvVar('CHUNK_SIZE', '1000')),
-    chunkOverlap: parseInt(getEnvVar('CHUNK_OVERLAP', '200')),
+    maxContextTokens: parseInt(getEnvVar('MAX_CONTEXT_TOKENS', '12000')),
+    chunkSize: parseInt(getEnvVar('CHUNK_SIZE', '2000')),
+    chunkOverlap: parseInt(getEnvVar('CHUNK_OVERLAP', '400')),
   },
 };
